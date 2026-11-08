@@ -5,6 +5,7 @@ public class Ball : MonoBehaviour
 {
     public Transform paddle;
     public float speed = 7f;
+    public Lives lives;
 
     Rigidbody2D body;
     bool launched;
@@ -39,6 +40,7 @@ public class Ball : MonoBehaviour
         else if (body.position.y < paddle.position.y - 0.3f)
         {
             ResetBall();
+            lives.LoseLife();
         }
     }
 
