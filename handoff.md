@@ -24,19 +24,21 @@ Ignore `Library/`, `Temp/`, `Logs/`, `obj/`, and `*.meta` files when searching, 
 2. The ball starts above the paddle and follows it until **Space** is pressed.
 3. Each launch chooses a random angle between **-45 and +45 degrees from straight up**. Ball speed remains constant.
 4. The ball bounces off the paddle, side walls, top wall, and bricks.
-5. A missed ball returns visibly to the paddle and waits for Space again. Existing brick damage is retained.
-6. There are **24 bricks**, arranged in three colored rows of eight. A brick disappears when hit by the ball.
-7. Clearing the last brick displays **YOU WIN!** with a "Press R to restart" line, deactivates the ball, and disables paddle movement.
-8. After the win, pressing **R** reloads the scene for a fresh game with all 24 bricks.
+5. A missed ball costs one of **3 lives**, shown as "Lives: N" in the top-left corner. The ball returns visibly to the paddle and waits for Space again. Existing brick damage is retained.
+6. Losing the last life shows **GAME OVER** with a "Press R to restart" line, deactivates the ball, and disables paddle movement. **R** then reloads the scene.
+7. There are **24 bricks**, arranged in three colored rows of eight. A brick disappears when hit by the ball.
+8. Clearing the last brick displays **YOU WIN!** with a "Press R to restart" line, deactivates the ball, and disables paddle movement.
+9. After the win, pressing **R** reloads the scene for a fresh game with all 24 bricks.
 
-There is no score, lives counter, game-over screen, sound, power-up system, or level progression yet. These are possible future steps, not approved work to implement automatically.
+There is no score, sound, power-up system, or level progression yet. These are possible future steps, not approved work to implement automatically.
 
 ## Scripts
 
 | Script | Responsibility |
 | --- | --- |
 | `Paddle.cs` | Reads keyboard input in `FixedUpdate()`, moves a kinematic `Rigidbody2D` with `MovePosition()`, and clamps horizontal movement. Defaults: speed 8, center limit ±6. |
-| `Ball.cs` | Handles waiting, randomized Space launches, constant speed after collisions, and resetting after a miss. Default speed: 7. Holds an Inspector reference to the paddle Transform. |
+| `Ball.cs` | Handles waiting, randomized Space launches, constant speed after collisions, and resetting after a miss. Default speed: 7. Holds Inspector references to the paddle Transform and to `Lives`, whose `LoseLife()` it calls after each miss. |
+| `Lives.cs` | Attached to `Lives Text`. Starts at 3 lives, updates the counter text, and on zero shows the game-over message, deactivates the ball, and disables the paddle. After game over, **R** reloads the scene. Holds references to its text, the game-over message, ball, and paddle. |
 | `Brick.cs` | In `OnCollisionEnter2D()`, checks for a `Ball` component and destroys its own GameObject. |
 | `WinCondition.cs` | Attached to the `Bricks` parent. Detects zero remaining children and activates the win state. After the win, **R** reloads the active scene by build index. Holds references to the win message, ball, and paddle. |
 
@@ -57,6 +59,8 @@ Bricks                         [WinCondition]
   Brick 1-1 ... Brick 3-8       [24 direct children]
 Game UI                        [Canvas]
   Win Message                  [TextMeshPro, initially inactive]
+  Game Over Message            [TextMeshPro, initially inactive]
+  Lives Text                   [TextMeshPro, Lives]
 ```
 
 - Camera: orthographic, size 5, dark background.
